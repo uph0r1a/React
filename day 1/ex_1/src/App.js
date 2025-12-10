@@ -5,10 +5,10 @@ function App() {
 
   console.log("App");
   const username = "Tri";
-  
+
   return (
     <div className="App">
-      <h1>username</h1>
+      <h1>Hello, {username}</h1>
     </div>
   );
 }
