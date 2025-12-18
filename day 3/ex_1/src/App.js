@@ -1,31 +1,44 @@
-import { useState, useEffect } from 'react';
-import ProductCard from './components/ProductCard';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import UserCard from "./components/UserCard";
 
 const App = () => {
-  const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const fetchData = async () => {
-    try {
-      const response = await axios.get("https://fakestoreapi.com/products");
-      console.log(response.data);
-      
-      setProducts(response.data ?? []);
-    } catch (error) {
-      console.error("Cant fetch data", error);
+    setLoading(true);
+    setError(false);
 
+    try {
+      const response = await axios.get(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      setUsers(response.data ?? []);
+    } catch (err) {
+      console.error("Can't fetch data", err);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchData();
-  }, [])
+  }, []);
 
   return (
-    <div>
-      {products.map(p => <ProductCard key={p.id} products={products} />)}
+    <div style={{ padding: 20 }}>
+      {loading && <p>Loading...</p>}
+
+      {error && <p>Failed to load users</p>}
+
+      {!loading &&
+        !error &&
+        users.map((u) => <UserCard key={u.id} user={u} />)}
     </div>
   );
-}
+};
 
-export default App
+export default App;
