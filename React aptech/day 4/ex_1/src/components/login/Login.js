@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import "./styles.css";
 import { useNavigate } from "react-router-dom";
-import Stack from "@mui/material/Stack";
-import Button from "@mui/material/Button";
-import Rating from "@mui/material/Rating";
 
 function Login() {
   const navigate = useNavigate();
@@ -13,11 +10,10 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý logic
     console.log(email, "email");
     console.log(password, "password");
     localStorage.setItem("email", email);
-    localStorage.setItem("token", "2jf029fj32f039f302j23jf32j093290"); // Giả lập accessToken
+    localStorage.setItem("token", "2jf029fj32f039f302j23jf32j093290");
     navigate("/dashboard");
   };
 

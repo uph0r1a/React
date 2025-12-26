@@ -10,10 +10,8 @@ function DashboardPage() {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
 
-  // useState, useEffect, useParams, useNavigate
 
   const getProducts = async () => {
-    // Call API get products
     setLoading(true);
     try {
       const response = await axios.get("https://fakestoreapi.com/products");
