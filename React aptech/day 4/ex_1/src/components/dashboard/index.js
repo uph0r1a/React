@@ -14,12 +14,10 @@ function DashboardPage() {
     setLoading(true);
     try {
       const response = await axios.get("https://fakestoreapi.com/products");
-      console.log(response, "products");
       setProducts(response.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log("error", error);
     }
   };
 
@@ -27,12 +25,10 @@ function DashboardPage() {
     setLoading(true);
     try {
       const response = await axios.get("https://fakestoreapi.com/users");
-      console.log(response, "users");
       setUsers(response.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log("error", error);
     }
   };
 

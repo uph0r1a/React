@@ -5,7 +5,6 @@ function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [value, setValue] = React.useState(2);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -17,10 +16,10 @@ function Login() {
   };
 
   return (
-    <div className="login-page">
+    <div>
       <h2>Login Page</h2>
-      <form className="login-form" onSubmit={handleSubmit}>
-        <div className="form-item">
+      <form onSubmit={handleSubmit}>
+        <div>
           <label>Email</label>
           <input
             type="email"
@@ -29,7 +28,7 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="form-item">
+        <div>
           <label>Password</label>
           <input
             type="password"
