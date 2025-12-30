@@ -14,6 +14,15 @@ const Users = () => {
     website: ''
   });
 
+  const isUserFormValid = () => {
+    return (
+      newUser.name.trim() !== "" &&
+      newUser.email.trim() !== "" &&
+      newUser.phone.trim() !== "" &&
+      newUser.website.trim() !== ""
+    );
+  };
+
   const navigate = useNavigate();
 
   const getUser = () =>
@@ -43,29 +52,41 @@ const Users = () => {
 
         <DialogContent>
           <TextField
+            required
             fullWidth
             label="Name"
+            placeholder='Enter name'
+            type='text'
             margin="normal"
             value={newUser.name}
             onChange={e => setNewUser({ ...newUser, name: e.target.value })}
           />
           <TextField
+            required
             fullWidth
             label="Email"
+            placeholder='Enter email'
+            type='email'
             margin="normal"
             value={newUser.email}
             onChange={e => setNewUser({ ...newUser, email: e.target.value })}
           />
           <TextField
+            required
             fullWidth
             label="Phone"
+            placeholder='Enter phone number'
+            type='tel'
             margin="normal"
             value={newUser.phone}
             onChange={e => setNewUser({ ...newUser, phone: e.target.value })}
           />
           <TextField
+            required
             fullWidth
             label="Website"
+            placeholder='Enter website URL'
+            type='url'
             margin="normal"
             value={newUser.website}
             onChange={e => setNewUser({ ...newUser, website: e.target.value })}
@@ -76,6 +97,7 @@ const Users = () => {
           <Button onClick={() => setAddUserOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
+            disabled={!isUserFormValid()}
             onClick={() => {
               setUsers([
                 ...users,
@@ -89,7 +111,6 @@ const Users = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
 
       <Table>
         <TableHead>

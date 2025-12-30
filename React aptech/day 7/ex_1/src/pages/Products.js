@@ -14,6 +14,16 @@ const Products = () => {
     image: ''
   });
 
+  const isFormValid = () => {
+    return (
+      newProduct.title.trim() !== "" &&
+      newProduct.category.trim() !== "" &&
+      newProduct.price !== "" &&
+      newProduct.price > 0 &&
+      newProduct.image !== ""
+    );
+  };
+
   const navigate = useNavigate();
 
   const getUser = () =>
@@ -43,14 +53,18 @@ const Products = () => {
 
         <DialogContent>
           <TextField
+            required
             fullWidth
             label="Title"
+            placeholder='Enter title'
+            type='text'
             margin="normal"
             value={newProduct.title}
             onChange={e => setNewProduct({ ...newProduct, title: e.target.value })}
           />
 
           <TextField
+            required
             fullWidth
             label="Price"
             type="number"
@@ -62,8 +76,11 @@ const Products = () => {
           />
 
           <TextField
+            required
             fullWidth
             label="Category"
+            placeholder='Enter category'
+            type='text'
             margin="normal"
             value={newProduct.category}
             onChange={e =>
@@ -72,8 +89,9 @@ const Products = () => {
           />
 
           <TextField
+            required
             fullWidth
-            label="Image URL"
+            type='file'
             margin="normal"
             value={newProduct.image}
             onChange={e =>
@@ -86,6 +104,7 @@ const Products = () => {
           <Button onClick={() => setAddProductOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
+            disabled={!isFormValid()}
             onClick={() => {
               setProducts([
                 ...products,
