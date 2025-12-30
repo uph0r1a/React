@@ -1,26 +1,32 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginForm from './components/LoginForm';
-import Dashboard from './pages/Dashboard';
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
 import Users from './pages/Users';
-import UserDetail from './pages/UserDetail';
 import Products from './pages/Products';
+import UserDetail from './pages/UserDetail';
 import ProductDetail from './pages/ProductDetail';
-
-const PrivateRoute = ({ children }) => {
-  const user = localStorage.getItem('user');
-  return user ? children : <Navigate to="/login" />;
-};
+import PrivateRoute from './components/PrivateRoute';
+import Layout from './components/Layout';
 
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginForm />} />
-      <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-      <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-      <Route path="/users/:id" element={<PrivateRoute><UserDetail /></PrivateRoute>} />
-      <Route path="/products" element={<PrivateRoute><Products /></PrivateRoute>} />
-      <Route path="/products/:id" element={<PrivateRoute><ProductDetail /></PrivateRoute>} />
-      <Route path="*" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/*"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Routes>
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/:id" element={<UserDetail />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
+              </Routes>
+            </Layout>
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 }

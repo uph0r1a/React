@@ -1,26 +1,96 @@
-import React, { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableHead, TableRow, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
 import axios from 'axios';
-
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  const fetchUsers = async () => {
-    const res = await axios.get('https://jsonplaceholder.typicode.com/users');
-    return res.data;
-  };
+  const [editUser, setEditUser] = useState(null);
+  const [addUserOpen, setAddUserOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    website: ''
+  });
+
+  const navigate = useNavigate();
+
+  const getUser = () =>
+    JSON.parse(localStorage.getItem('user'));
+
+  const isAdmin = () =>
+    getUser()?.role === 'admin';
 
   useEffect(() => {
-    fetchUsers().then(setUsers);
+    axios.get('https://jsonplaceholder.typicode.com/users')
+      .then(res => setUsers(res.data));
   }, []);
 
-  const handleDelete = (id) => {
-    setUsers(users.filter(u => u.id !== id));
-  };
-
   return (
-    <TableContainer component={Paper} sx={{ mt: 3 }}>
+    <Paper sx={{ m: 3 }}>
+      {isAdmin() && (
+        <Button
+          variant="contained"
+          sx={{ m: 2 }}
+          onClick={() => setAddUserOpen(true)}
+        >
+          Add User
+        </Button>
+      )}
+      <Dialog open={addUserOpen} onClose={() => setAddUserOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Add User</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Name"
+            margin="normal"
+            value={newUser.name}
+            onChange={e => setNewUser({ ...newUser, name: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            margin="normal"
+            value={newUser.email}
+            onChange={e => setNewUser({ ...newUser, email: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label="Phone"
+            margin="normal"
+            value={newUser.phone}
+            onChange={e => setNewUser({ ...newUser, phone: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            label="Website"
+            margin="normal"
+            value={newUser.website}
+            onChange={e => setNewUser({ ...newUser, website: e.target.value })}
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setAddUserOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setUsers([
+                ...users,
+                { ...newUser, id: users.length + 1 }
+              ]);
+              setNewUser({ name: '', email: '', phone: '', website: '' });
+              setAddUserOpen(false);
+            }}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
       <Table>
         <TableHead>
           <TableRow>
@@ -32,23 +102,101 @@ const Users = () => {
             <TableCell>Action</TableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
-          {users.map(user => (
-            <TableRow key={user.id}>
-              <TableCell>{user.id}</TableCell>
-              <TableCell>{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.phone}</TableCell>
-              <TableCell>{user.website}</TableCell>
+          {users.map(u => (
+            <TableRow key={u.id}>
+              <TableCell>{u.id}</TableCell>
+              <TableCell>{u.name}</TableCell>
+              <TableCell>{u.email}</TableCell>
+              <TableCell>{u.phone}</TableCell>
+              <TableCell>{u.website}</TableCell>
               <TableCell>
-                <Link to={`/users/${user.id}`}>View</Link>
-                <Button color="error" onClick={() => handleDelete(user.id)}>Delete</Button>
+                <Button onClick={() => navigate(`/users/${u.id}`)}>View</Button>
+
+                {isAdmin() && (
+                  <>
+                    <Button onClick={() => setEditUser(u)}>Edit</Button>
+                    <Button
+                      color="error"
+                      onClick={() =>
+                        setUsers(users.filter(x => x.id !== u.id))
+                      }
+                    >
+                      Delete
+                    </Button>
+                  </>
+                )}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-    </TableContainer>
+
+      <Dialog open={!!editUser} onClose={() => setEditUser(null)} fullWidth maxWidth="sm">
+        <DialogTitle>Edit User</DialogTitle>
+
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Name"
+            margin="normal"
+            value={editUser?.name || ''}
+            onChange={e =>
+              setEditUser({ ...editUser, name: e.target.value })
+            }
+          />
+
+          <TextField
+            fullWidth
+            label="Email"
+            margin="normal"
+            value={editUser?.email || ''}
+            onChange={e =>
+              setEditUser({ ...editUser, email: e.target.value })
+            }
+          />
+
+          <TextField
+            fullWidth
+            label="Phone"
+            margin="normal"
+            value={editUser?.phone || ''}
+            onChange={e =>
+              setEditUser({ ...editUser, phone: e.target.value })
+            }
+          />
+
+          <TextField
+            fullWidth
+            label="Website"
+            margin="normal"
+            value={editUser?.website || ''}
+            onChange={e =>
+              setEditUser({ ...editUser, website: e.target.value })
+            }
+          />
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setEditUser(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setUsers(users.map(u =>
+                u.id === editUser.id ? editUser : u
+              ));
+              setEditUser(null);
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+    </Paper>
   );
 };
 

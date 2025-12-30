@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Card, CardContent, Typography, Box, CardMedia } from '@mui/material';
+import { Card, CardContent, Typography, CardMedia, Box, Button } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { useEffect, useState } from 'react';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
-  const fetchProducts = async () => {
-    const res = await axios.get('https://fakestoreapi.com/products');
-    return res.data;
-  };
 
   useEffect(() => {
-    fetchProducts().then(data => {
-      setProduct(data.find(p => p.id === parseInt(id)));
-    });
+    axios
+      .get(`https://fakestoreapi.com/products/${id}`)
+      .then(res => setProduct(res.data));
   }, [id]);
 
   if (!product) return <p>Loading...</p>;
@@ -30,10 +26,16 @@ const ProductDetail = () => {
           alt={product.title}
         />
         <CardContent>
-          <Typography variant="h5">{product.title}</Typography>
+          <Typography variant="h6">{product.title}</Typography>
           <Typography>Price: ${product.price}</Typography>
           <Typography>Category: {product.category}</Typography>
-          <Typography>Description: {product.description}</Typography>
+          <Typography sx={{ mt: 1 }}>
+            {product.description}
+          </Typography>
+
+          <Button sx={{ mt: 2 }} onClick={() => navigate(-1)}>
+            Back
+          </Button>
         </CardContent>
       </Card>
     </Box>
