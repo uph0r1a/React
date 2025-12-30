@@ -14,7 +14,7 @@ const LoginForm = () => {
       localStorage.setItem('user', JSON.stringify({ username }));
       navigate('/dashboard');
     } else {
-      setError('Vui lòng nhập đầy đủ username và password');
+      setError('Please enter the username and password');
     }
   };
 
