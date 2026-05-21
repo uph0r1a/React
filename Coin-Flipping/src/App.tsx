@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
 import "./App.css";
-import HeadHead from "./videos/head_to_head.mp4";
-import HeadTail from "./videos/head_to_tail.mp4";
-import TailHead from "./videos/tail_to_head.mp4";
-import TailTail from "./videos/tail_to_tail.mp4";
-import sound from "./videos/1243873193.mp3";
+
+const HeadHead = "/videos/head_to_head.mp4";
+const HeadTail = "/videos/head_to_tail.mp4";
+const TailHead = "/videos/tail_to_head.mp4";
+const TailTail = "/videos/tail_to_tail.mp4";
+const sound = "/videos/coin_sound.mp3";
 
 function App() {
   const [heads, setHeads] = useState(0);
