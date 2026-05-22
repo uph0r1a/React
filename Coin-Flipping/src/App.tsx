@@ -15,6 +15,10 @@ function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const GCD = (a: number, b: number): number => {
+    return b === 0 ? Math.abs(a) : GCD(b, a % b);
+  };
+
   const flip = () => {
     const old = Math.random() < 0.5 ? 1 : 0;
     const now = Math.random() < 0.5 ? 1 : 0;
@@ -50,6 +54,11 @@ function App() {
 
       <div className="stats">
         <p>HEAD: {heads}</p>
+        <p>
+          {heads === 0 && tails === 0
+            ? `${heads} : ${tails}`
+            : `${heads / GCD(heads, tails)} : ${tails / GCD(heads, tails)}`}
+        </p>
         <p>TAIL: {tails}</p>
       </div>
 
