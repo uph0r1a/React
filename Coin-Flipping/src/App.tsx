@@ -1,11 +1,29 @@
 import { useRef, useState } from "react";
 import "./App.css";
-
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 const HeadHead = "/videos/head_to_head.mp4";
 const HeadTail = "/videos/head_to_tail.mp4";
 const TailHead = "/videos/tail_to_head.mp4";
 const TailTail = "/videos/tail_to_tail.mp4";
 const sound = "/videos/coin_sound.mp3";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 function App() {
   const [heads, setHeads] = useState(0);
@@ -47,6 +65,40 @@ function App() {
     }, 0);
   };
 
+  const data = {
+    labels: ["Heads", "Tails"],
+    datasets: [
+      {
+        label: "Coin Flips",
+        data: [heads, tails],
+        backgroundColor: ["#4ade80", "#f87171"],
+        borderColor: ["#22c55e", "#ef4444"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: "Coin Flip Results",
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+  };
+
   return (
     <div className="app">
       <h1>Coin Flip Simulator</h1>
@@ -73,6 +125,8 @@ function App() {
       />
 
       <audio ref={audioRef} src={sound} />
+
+      <Bar data={data} options={options} id="bar" />
     </div>
   );
 }
