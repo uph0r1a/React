@@ -15,6 +15,10 @@ function App() {
   const n = Number(number_of_dices);
 
   function formatProduct(num: number) {
+    if (!Number.isFinite(num)) {
+      return "∞";
+    }
+
     if (num === 0) return "0";
 
     const threshold = 1e10;
@@ -24,13 +28,9 @@ function App() {
     }
 
     const exponent = Math.floor(Math.log10(Math.abs(num)));
-    const mantissaRaw = num / Math.pow(10, exponent);
+    const mantissa = num / Math.pow(10, exponent);
 
-    let mantissa = mantissaRaw.toFixed(9);
-
-    mantissa = mantissa.replace(/\.?0+$/, "");
-
-    return `${mantissa} x 10^${exponent}`;
+    return `${mantissa.toFixed(9).replace(/\.?0+$/, "")} × 10^${exponent}`;
   }
 
   const roll = (e: any) => {
