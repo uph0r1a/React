@@ -14,13 +14,23 @@ function App() {
   const [results, setResults] = useState<number[]>([]);
   const n = Number(number_of_dices);
 
-  function formatScientific(num: number) {
+  function formatProduct(num: number) {
     if (num === 0) return "0";
 
-    const exponent = Math.floor(Math.log10(Math.abs(num)));
-    const mantissa = num / Math.pow(10, exponent);
+    const threshold = 1e10;
 
-    return `${mantissa.toFixed(9)} x 10^${exponent}`;
+    if (Math.abs(num) <= threshold) {
+      return Math.trunc(num).toString();
+    }
+
+    const exponent = Math.floor(Math.log10(Math.abs(num)));
+    const mantissaRaw = num / Math.pow(10, exponent);
+
+    let mantissa = mantissaRaw.toFixed(9);
+
+    mantissa = mantissa.replace(/\.?0+$/, "");
+
+    return `${mantissa} x 10^${exponent}`;
   }
 
   const roll = (e: any) => {
@@ -52,7 +62,7 @@ function App() {
         ))}
       </div>
       <p>Sum: {sum}</p>
-      <p>Product: {formatScientific(product)}</p>
+      <p>Product: {formatProduct(product)}</p>
       <form>
         <label htmlFor="dice_number">Number of Dice: </label>
         <input
