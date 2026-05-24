@@ -1,33 +1,72 @@
-const dice1 = "/images/dice1.svg"
-const dice2 = "/images/dice2.svg"
-const dice3 = "/images/dice3.svg"
-const dice4 = "/images/dice4.svg"
-const dice5 = "/images/dice5.svg"
-const dice6 = "/images/dice6.svg"
-
+import { useState } from "react";
+import "./App.css";
+const dice1 = "/images/dice1.svg";
+const dice2 = "/images/dice2.svg";
+const dice3 = "/images/dice3.svg";
+const dice4 = "/images/dice4.svg";
+const dice5 = "/images/dice5.svg";
+const dice6 = "/images/dice6.svg";
 
 function App() {
-  const roll = (number_of_dices:number = 1) => {
-    let results:number[] = []
-    for (let i = 0; i < number_of_dices; i++) {
-      results.push(Math.floor(Math.random() * (6 - 1 + 1))+1)  
-    }
-    
+  const [number_of_dices, setNumberOfDices] = useState("1");
+  const [sum, setSum] = useState(0);
+  const [product, setProduct] = useState(0);
+  const [results, setResults] = useState<number[]>([]);
+  const n = Number(number_of_dices);
+
+  function formatScientific(num: number) {
+    if (num === 0) return "0";
+
+    const exponent = Math.floor(Math.log10(Math.abs(num)));
+    const mantissa = num / Math.pow(10, exponent);
+
+    return `${mantissa.toFixed(9)} x 10^${exponent}`;
   }
+
+  const roll = (e: any) => {
+    e.preventDefault();
+
+    const newResults: number[] = [];
+
+    for (let i = 0; i < n; i++) {
+      const r = Math.floor(Math.random() * 6) + 1;
+      newResults.push(r);
+    }
+
+    setResults(newResults);
+
+    setSum(newResults.reduce((a, b) => a + b, 0));
+
+    setProduct(
+      newResults.reduce((acc, val) => (acc === 0 ? val : acc * val), 0),
+    );
+  };
+  const dice = [dice1, dice2, dice3, dice4, dice5, dice6];
 
   return (
     <div className="app">
       <h1>Dice Roller</h1>
-      <img src="" alt="" />
-      <p>Sum: {}</p>
-      <p>Product: {}</p>
+      <div className="dice-container">
+        {results.map((item, index) => (
+          <img key={index} src={dice[item - 1]} alt="" />
+        ))}
+      </div>
+      <p>Sum: {sum}</p>
+      <p>Product: {formatScientific(product)}</p>
       <form>
         <label htmlFor="dice_number">Number of Dice: </label>
-        <input type="number" name="dice_number" id="dice_number" />
-        <button type="submit">Roll dice</button>
+        <input
+          type="number"
+          value={number_of_dices}
+          onChange={(e) => setNumberOfDices(e.target.value)}
+          min={1}
+        />
+        <button type="submit" onClick={roll}>
+          Roll dice
+        </button>
       </form>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
