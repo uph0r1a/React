@@ -30,7 +30,7 @@ function App() {
     const exponent = Math.floor(Math.log10(Math.abs(num)));
     const mantissa = num / Math.pow(10, exponent);
 
-    return `${mantissa.toFixed(9).replace(/\.?0+$/, "")} × 10^${exponent}`;
+    return `${mantissa.toFixed(9).replace(/\.?0+$/, "")} x 10^${exponent}`;
   }
 
   const roll = (e: any) => {
