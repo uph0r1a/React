@@ -3,59 +3,44 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import Logo from '../assets/img/Logo.png';
 
-// CONFIG
 const API = '/server/index.php';
 
-// COMPONENT: SpinnerIcon
-function SpinnerIcon() {
-    return (
-        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-        </svg>
-    );
-}
+const SpinnerIcon = () => (
+    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+    </svg>
+);
 
-function EyeIconOpen() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
-            <circle cx="12" cy="12" r="3" />
-        </svg>
-    );
-}
+const EyeIconOpen = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+        <circle cx="12" cy="12" r="3" />
+    </svg>
+);
 
-function EyeIconClosed() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-            <line x1="1" y1="1" x2="23" y2="23" />
-        </svg>
-    );
-}
+const EyeIconClosed = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+        <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+);
 
-function ServerErrorBox({ message }) {
-    if (!message) return null;
-    return (
+const ServerErrorBox = ({ message }) =>
+    message ? (
         <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg">
             {message}
         </div>
-    );
-}
+    ) : null;
 
-function getEmailInputClasses(hasError) {
-    const base = 'w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-colors';
-    if (hasError) return base + ' border-red-400 focus:border-red-500 bg-red-50';
-    return base + ' border-gray-300 focus:border-purple-500';
-}
+const getEmailInputClasses = (hasError) =>
+    `w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-colors ${hasError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-purple-500'
+    }`;
 
-function getPasswordInputClasses(hasError) {
-    const base = 'w-full px-3 py-2.5 pr-10 border rounded-lg text-sm outline-none transition-colors';
-    if (hasError) return base + ' border-red-400 focus:border-red-500 bg-red-50';
-    return base + ' border-gray-300 focus:border-purple-500';
-}
+const getPasswordInputClasses = (hasError) =>
+    `w-full px-3 py-2.5 pr-10 border rounded-lg text-sm outline-none transition-colors ${hasError ? 'border-red-400 focus:border-red-500 bg-red-50' : 'border-gray-300 focus:border-purple-500'
+    }`;
 
-// COMPONENT: LoginPage
 const LoginPage = () => {
     const navigate = useNavigate();
 
@@ -68,8 +53,9 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [serverError, setServerError] = useState('');
 
-    function validate() {
+    const validate = () => {
         let isValid = true;
+
         if (!email.trim()) {
             setEmailError('Vui lòng nhập email.');
             isValid = false;
@@ -77,6 +63,7 @@ const LoginPage = () => {
             setEmailError('Email không hợp lệ.');
             isValid = false;
         }
+
         if (!password) {
             setPasswordError('Vui lòng nhập mật khẩu.');
             isValid = false;
@@ -84,78 +71,44 @@ const LoginPage = () => {
             setPasswordError('Mật khẩu tối thiểu 6 ký tự.');
             isValid = false;
         }
-        return isValid;
-    }
 
-    async function handleLogin(event) {
+        return isValid;
+    };
+
+    const handleLogin = async (event) => {
         event.preventDefault();
         setServerError('');
         if (!validate()) return;
         setLoading(true);
 
         try {
-            const response = await axios.post(API + '?action=login', {
-                email: email,
-                password: password,
-            });
+            const response = await axios.post(API + '?action=login', { email, password });
 
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            localStorage.removeItem('name');
-            localStorage.removeItem('email');
-            localStorage.removeItem('industry');
-            localStorage.removeItem('company');
-            localStorage.removeItem('avatar');
-            localStorage.removeItem('rememberMe');
+            ['token', 'role', 'name', 'email', 'industry', 'company', 'avatar', 'rememberMe'].forEach((key) =>
+                localStorage.removeItem(key)
+            );
 
-            const userData = response.data.data;
-            const token = userData.token;
-            const role = userData.role;
-            const name = userData.name;
-            const industry = userData.industry;
-            const company = userData.company;
-            const avatar = userData.avatar;
+            const { token, role, name, industry, company, avatar } = response.data.data;
 
-            // Save to localStorage
             localStorage.setItem('token', token);
             localStorage.setItem('role', role);
             localStorage.setItem('name', name);
             localStorage.setItem('email', email);
-            if (industry) localStorage.setItem('industry', industry);
-            if (company) localStorage.setItem('company', company);
-            if (avatar) localStorage.setItem('avatar', avatar);
+            industry && localStorage.setItem('industry', industry);
+            company && localStorage.setItem('company', company);
+            avatar && localStorage.setItem('avatar', avatar);
 
-            // Handle Remember Me — store flag so auto-login can be applied
-            if (rememberMe) {
-                localStorage.setItem('rememberMe', 'true');
-            } else {
-                localStorage.removeItem('rememberMe');
-            }
+            rememberMe ? localStorage.setItem('rememberMe', 'true') : localStorage.removeItem('rememberMe');
 
-            // Redirect based on role
-            if (role === 'admin') {
-                navigate('/admin');
-            } else if (role === 'employer') {
-                navigate('/employer');
-            } else {
-                // job_seeker → job browsing page
-                navigate('/jobs');
-            }
-
+            navigate(role === 'admin' ? '/admin' : role === 'employer' ? '/employer' : '/jobs');
         } catch (err) {
-            let message = 'Có lỗi xảy ra. Vui lòng thử lại.';
-            if (err.response && err.response.data && err.response.data.message) {
-                message = err.response.data.message;
-            }
-            setServerError(message);
+            setServerError(err.response?.data?.message ?? 'Có lỗi xảy ra. Vui lòng thử lại.');
         } finally {
             setLoading(false);
         }
-    }
+    };
 
-    function handleTogglePassword() {
-        setShowPassword(!showPassword);
-    }
+    const handleTogglePassword = () => setShowPassword(!showPassword);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-r from-purple-600 to-purple-400">
@@ -175,7 +128,6 @@ const LoginPage = () => {
 
                     <form onSubmit={handleLogin} noValidate className="flex flex-col gap-4">
 
-                        {/* Email field */}
                         <div className="flex flex-col gap-1">
                             <label htmlFor="email" className="text-sm font-medium text-gray-700">Email</label>
                             <input
@@ -184,13 +136,12 @@ const LoginPage = () => {
                                 placeholder="example@email.com"
                                 className={getEmailInputClasses(!!emailError)}
                                 value={email}
-                                onChange={function (e) { setEmail(e.target.value); setEmailError(''); setServerError(''); }}
+                                onChange={(e) => { setEmail(e.target.value); setEmailError(''); setServerError(''); }}
                                 autoComplete="email"
                             />
                             {emailError && <p className="text-xs text-red-500">{emailError}</p>}
                         </div>
 
-                        {/* Password field */}
                         <div className="flex flex-col gap-1">
                             <div className="flex items-center justify-between">
                                 <label htmlFor="password" className="text-sm font-medium text-gray-700">Mật khẩu</label>
@@ -206,7 +157,7 @@ const LoginPage = () => {
                                     placeholder="••••••••"
                                     className={getPasswordInputClasses(!!passwordError)}
                                     value={password}
-                                    onChange={function (e) { setPassword(e.target.value); setPasswordError(''); setServerError(''); }}
+                                    onChange={(e) => { setPassword(e.target.value); setPasswordError(''); setServerError(''); }}
                                     autoComplete="current-password"
                                 />
                                 <button
@@ -222,13 +173,12 @@ const LoginPage = () => {
                             {passwordError && <p className="text-xs text-red-500">{passwordError}</p>}
                         </div>
 
-                        {/* ── Remember Me ── */}
                         <div className="flex items-center gap-2">
                             <input
                                 id="rememberMe"
                                 type="checkbox"
                                 checked={rememberMe}
-                                onChange={function (e) { setRememberMe(e.target.checked); }}
+                                onChange={(e) => setRememberMe(e.target.checked)}
                                 className="w-4 h-4 accent-purple-600 cursor-pointer"
                             />
                             <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer select-none">
@@ -236,7 +186,6 @@ const LoginPage = () => {
                             </label>
                         </div>
 
-                        {/* Submit button */}
                         <button
                             type="submit"
                             disabled={loading}
