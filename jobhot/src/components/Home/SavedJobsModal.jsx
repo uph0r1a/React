@@ -7,30 +7,13 @@ const SavedJobsModal = ({ isOpen, onClose }) => {
     const [savedJobs, setSavedJobs] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (isOpen) {
-            fetchSavedJobs();
-        }
-    }, [isOpen]);
-
     const fetchSavedJobs = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(API + '?action=get-saved-jobs', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
-            });
+            const response = await fetch(`${API}?action=get-saved-jobs`, { method: 'GET', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } });
             const data = await response.json();
-            if (data.success) {
-                setSavedJobs((data.data && data.data.jobs) || data.jobs || []);
-            } else {
-                console.error(data.message);
-                setSavedJobs([]);
-            }
+            setSavedJobs(data.success ? (data.data?.jobs ?? data.jobs ?? []) : (console.error(data.message), []));
         } catch (error) {
             console.error('Error fetching saved jobs:', error);
             setSavedJobs([]);
@@ -39,20 +22,12 @@ const SavedJobsModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const handleUnsave = (jobId) => {
-        setSavedJobs(savedJobs.filter(job => job.id !== jobId));
-    };
+    useEffect(() => { isOpen && fetchSavedJobs(); }, [isOpen]);
 
-    const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
+    const handleUnsave = (jobId) => setSavedJobs(savedJobs.filter((job) => job.id !== jobId));
+    const handleBackdropClick = (e) => e.target === e.currentTarget && onClose();
 
-    if (!isOpen)
-        return null;
-
-    return (
+    return !isOpen ? null : (
         <div className="fixed inset-0 flex items-center justify-center z-9999 p-6" style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)' }} onClick={handleBackdropClick}>
             <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-linear-to-r from-purple-600 to-purple-500">
@@ -66,7 +41,7 @@ const SavedJobsModal = ({ isOpen, onClose }) => {
                 <div className="overflow-y-auto max-h-[calc(90vh-100px)] px-6 py-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600" />
                         </div>
                     ) : savedJobs.length === 0 ? (
                         <div className="text-center py-20">
@@ -76,9 +51,7 @@ const SavedJobsModal = ({ isOpen, onClose }) => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {savedJobs.map(job => (
-                                <JobCard key={job.id} job={job} initialSaved={true} onUnsave={() => handleUnsave(job.id)} />
-                            ))}
+                            {savedJobs.map((job) => <JobCard key={job.id} job={job} initialSaved onUnsave={() => handleUnsave(job.id)} />)}
                         </div>
                     )}
                 </div>

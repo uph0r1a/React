@@ -2,16 +2,21 @@ import { useState, useEffect } from 'react';
 
 const API = '/server/index.php';
 
+const STATUS_INFO = {
+    new: { label: 'Đang chờ', color: 'bg-yellow-100 text-yellow-700', icon: '⏳' },
+    reviewing: { label: 'Đang xét', color: 'bg-blue-100 text-blue-700', icon: '👀' },
+    shortlisted: { label: 'Phù hợp', color: 'bg-green-100 text-green-700', icon: '✓' },
+    rejected: { label: 'Từ chối', color: 'bg-red-100 text-red-700', icon: '✕' },
+};
+const DEFAULT_STATUS_INFO = { label: 'Không rõ', color: 'bg-gray-100 text-gray-700', icon: '?' };
+
+const getInitials = (companyName) => companyName.split(' ').slice(-2).map((w) => w[0]).join('').toUpperCase();
+const getStatusInfo = (status) => STATUS_INFO[status] ?? DEFAULT_STATUS_INFO;
+
 const AppliedJobsModal = ({ isOpen, onClose }) => {
     const [appliedJobs, setAppliedJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    useEffect(() => {
-        if (isOpen) {
-            fetchAppliedJobs();
-        }
-    }, [isOpen]);
 
     const fetchAppliedJobs = async () => {
         setLoading(true);
@@ -19,22 +24,10 @@ const AppliedJobsModal = ({ isOpen, onClose }) => {
 
         try {
             const token = localStorage.getItem('token');
-
-            const response = await fetch(API + '?action=get-applied-jobs', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                },
-            });
-
+            const response = await fetch(`${API}?action=get-applied-jobs`, { method: 'GET', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } });
             const data = await response.json();
 
-            if (data.success) {
-                setAppliedJobs(data.data || []);
-            } else {
-                setError(data.message || 'Không thể tải danh sách.');
-            }
+            data.success ? setAppliedJobs(data.data || []) : setError(data.message || 'Không thể tải danh sách.');
         } catch (err) {
             setError('Lỗi kết nối. Vui lòng thử lại.');
         } finally {
@@ -42,59 +35,11 @@ const AppliedJobsModal = ({ isOpen, onClose }) => {
         }
     };
 
-    const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) onClose();
-    };
+    useEffect(() => { isOpen && fetchAppliedJobs(); }, [isOpen]);
 
-    const getInitials = (companyName) => {
-        const words = companyName.split(' ');
-        const lastTwo = words.slice(-2);
+    const handleBackdropClick = (e) => e.target === e.currentTarget && onClose();
 
-        return lastTwo.map((w) => w[0]).join('').toUpperCase();
-    };
-
-    const getStatusInfo = (status) => {
-        switch (status) {
-            case 'new':
-                return {
-                    label: 'Đang chờ',
-                    color: 'bg-yellow-100 text-yellow-700',
-                    icon: '⏳'
-                };
-
-            case 'reviewing':
-                return {
-                    label: 'Đang xét',
-                    color: 'bg-blue-100 text-blue-700',
-                    icon: '👀'
-                };
-
-            case 'shortlisted':
-                return {
-                    label: 'Phù hợp',
-                    color: 'bg-green-100 text-green-700',
-                    icon: '✓'
-                }
-
-            case 'rejected':
-                return {
-                    label: 'Từ chối',
-                    color: 'bg-red-100 text-red-700',
-                    icon: '✕'
-                };
-
-            default:
-                return {
-                    label: 'Không rõ',
-                    color: 'bg-gray-100 text-gray-700',
-                    icon: '?'
-                };
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
+    return !isOpen ? null : (
         <div className="fixed inset-0 flex items-center justify-center z-9999 p-6" style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)' }} onClick={handleBackdropClick}>
             <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-linear-to-r from-purple-600 to-purple-500">
@@ -108,7 +53,7 @@ const AppliedJobsModal = ({ isOpen, onClose }) => {
                 <div className="overflow-y-auto max-h-[calc(90vh-100px)] px-6 py-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600" />
                         </div>
                     ) : error ? (
                         <div className="text-center py-20">
@@ -146,17 +91,12 @@ const AppliedJobsModal = ({ isOpen, onClose }) => {
                                                 </div>
 
                                                 <div className="flex flex-wrap gap-2 mb-3">
-                                                    {job.salary && (
-                                                        <span className="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-medium">💰 {job.salary}</span>
-                                                    )}
-
-                                                    {job.location && (
-                                                        <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">📍 {job.location}</span>
-                                                    )}
+                                                    {job.salary && <span className="text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 font-medium">💰 {job.salary}</span>}
+                                                    {job.location && <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 font-medium">📍 {job.location}</span>}
                                                 </div>
 
                                                 <div className="flex items-center justify-between text-xs text-gray-500">
-                                                    <span>Ứng tuyển ngày:{' '}{new Date(job.applied_at).toLocaleDateString('vi-VN')}</span>
+                                                    <span>Ứng tuyển ngày: {new Date(job.applied_at).toLocaleDateString('vi-VN')}</span>
                                                     <a href={`/jobs/${job.job_id}`} className="text-purple-600 hover:text-purple-700 font-medium hover:underline">Xem chi tiết →</a>
                                                 </div>
                                             </div>

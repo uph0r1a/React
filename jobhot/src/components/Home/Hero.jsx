@@ -1,58 +1,47 @@
 import { useState, useEffect } from 'react';
 
 const API = '/server/index.php';
+const HOT_KEYWORDS = ['Lập trình viên', 'Marketing', 'Kế toán', 'Thiết kế UX/UI', 'Data Analyst'];
+const DEFAULT_STATS = [
+    { number: '...', label: 'Việc làm' },
+    { number: '...', label: 'Công ty' },
+    { number: '...', label: 'Ứng viên' },
+];
 
 const Hero = ({ onSearch }) => {
     const [keyword, setKeyword] = useState('');
     const [location, setLocation] = useState('');
-    const [stats, setStats] = useState([
-        { number: '...', label: 'Việc làm' },
-        { number: '...', label: 'Công ty' },
-        { number: '...', label: 'Ứng viên' },
-    ]);
-    const hotKeywords = ['Lập trình viên', 'Marketing', 'Kế toán', 'Thiết kế UX/UI', 'Data Analyst'];
+    const [stats, setStats] = useState(DEFAULT_STATS);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch(API + '?action=get-stats');
+                const response = await fetch(`${API}?action=get-stats`);
                 const data = await response.json();
-                if (data.success && data.data) {
-                    setStats([
-                        { number: data.data.jobs + '+', label: 'Việc làm' },
-                        { number: data.data.companies + '+', label: 'Công ty' },
-                        { number: data.data.candidates + '+', label: 'Ứng viên' },
-                    ]);
-                }
-            } catch {
-                // Keep fallback values if stats endpoint not available
-            }
+                data.success && data.data && setStats([
+                    { number: `${data.data.jobs}+`, label: 'Việc làm' },
+                    { number: `${data.data.companies}+`, label: 'Công ty' },
+                    { number: `${data.data.candidates}+`, label: 'Ứng viên' },
+                ]);
+            } catch { }
         };
         fetchStats();
     }, []);
 
     const handleSearch = async () => {
         try {
-            let query = 'action=get-jobs';
-            if (keyword.trim()) query += '&keyword=' + encodeURIComponent(keyword.trim());
-            if (location.trim()) query += '&location=' + encodeURIComponent(location.trim());
-            const response = await fetch(API + '?' + query);
+            const params = { keyword: keyword.trim(), location: location.trim() };
+            const query = Object.entries(params).filter(([, v]) => v).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+            const response = await fetch(`${API}?action=get-jobs${query ? `&${query}` : ''}`);
             const data = await response.json();
-            if (data.success && onSearch) {
-                onSearch(data.data?.jobs || data.jobs || []);
-            }
+            data.success && onSearch?.(data.data?.jobs ?? data.jobs ?? []);
         } catch (error) {
             console.error('Search error:', error);
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') handleSearch();
-    };
-
-    const handleHotKeyword = (kw) => {
-        setKeyword(kw);
-    };
+    const handleKeyDown = (e) => e.key === 'Enter' && handleSearch();
+    const handleHotKeyword = (kw) => setKeyword(kw);
 
     return (
         <section className="bg-linear-to-br from-purple-700 via-purple-600 to-purple-500 text-white py-14 px-4 relative overflow-hidden">
@@ -77,14 +66,7 @@ const Hero = ({ onSearch }) => {
                             <circle cx="11" cy="11" r="8" />
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
-                        <input
-                            type="text"
-                            value={keyword}
-                            onChange={(e) => setKeyword(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="w-full text-sm text-gray-800 outline-none placeholder-gray-400 bg-transparent"
-                            placeholder="Vị trí tuyển dụng, kỹ năng..."
-                        />
+                        <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={handleKeyDown} className="w-full text-sm text-gray-800 outline-none placeholder-gray-400 bg-transparent" placeholder="Vị trí tuyển dụng, kỹ năng..." />
                     </div>
 
                     <div className="flex-1 min-w-40 flex items-center gap-2">
@@ -92,29 +74,15 @@ const Hero = ({ onSearch }) => {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <input
-                            type="text"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="w-full text-sm text-gray-800 outline-none placeholder-gray-400 bg-transparent"
-                            placeholder="Địa điểm làm việc..."
-                        />
+                        <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} onKeyDown={handleKeyDown} className="w-full text-sm text-gray-800 outline-none placeholder-gray-400 bg-transparent" placeholder="Địa điểm làm việc..." />
                     </div>
 
-                    <button
-                        onClick={handleSearch}
-                        className="bg-purple-600 text-white px-7 py-2.5 rounded-lg font-semibold text-sm hover:bg-purple-700 transition-colors shadow-sm whitespace-nowrap"
-                    >
-                        🔍 Tìm việc
-                    </button>
+                    <button onClick={handleSearch} className="bg-purple-600 text-white px-7 py-2.5 rounded-lg font-semibold text-sm hover:bg-purple-700 transition-colors shadow-sm whitespace-nowrap">🔍 Tìm việc</button>
                 </div>
 
                 <div className="flex gap-2 mt-5 flex-wrap items-center">
                     <span className="text-purple-200 text-xs font-medium">Tìm kiếm phổ biến:</span>
-                    {hotKeywords.map((kw) => (
-                        <button key={kw} onClick={() => handleHotKeyword(kw)} className="bg-white/15 hover:bg-white/25 text-white px-3 py-1 rounded-full text-xs transition-colors border border-white/20">{kw}</button>
-                    ))}
+                    {HOT_KEYWORDS.map((kw) => <button key={kw} onClick={() => handleHotKeyword(kw)} className="bg-white/15 hover:bg-white/25 text-white px-3 py-1 rounded-full text-xs transition-colors border border-white/20">{kw}</button>)}
                 </div>
 
                 <div className="flex gap-8 mt-8 flex-wrap">

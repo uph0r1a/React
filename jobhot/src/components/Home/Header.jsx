@@ -5,6 +5,8 @@ import UserProfileModal from './UserProfileModal';
 import SavedJobsModal from './SavedJobsModal';
 import AppliedJobsModal from './AppliedJobsModal';
 
+const DASHBOARD_PATHS = { admin: '/admin', employer: '/employer' };
+
 const Header = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
@@ -19,62 +21,25 @@ const Header = () => {
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setDropdownOpen(false);
-            }
-        };
+        const handleClickOutside = (e) => dropdownRef.current && !dropdownRef.current.contains(e.target) && setDropdownOpen(false);
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        localStorage.removeItem('name');
-        localStorage.removeItem('email');
-        localStorage.removeItem('industry');
-        localStorage.removeItem('company');
-        localStorage.removeItem('avatar');
-        localStorage.removeItem('rememberMe');
+        ['token', 'role', 'name', 'email', 'industry', 'company', 'avatar', 'rememberMe'].forEach((k) => localStorage.removeItem(k));
         setDropdownOpen(false);
         navigate('/');
     };
 
-    const getDashboardPath = () => {
-        if (role === 'admin')
-            return '/admin';
-        if (role === 'employer')
-            return '/employer';
-        return '/jobs';
-    };
+    const getDashboardPath = () => DASHBOARD_PATHS[role] ?? '/jobs';
+    const handleEditProfile = () => { setDropdownOpen(false); setProfileModalOpen(true); };
+    const handleOpenSavedJobs = () => { setDropdownOpen(false); setSavedJobsModalOpen(true); };
+    const handleOpenAppliedJobs = () => { setDropdownOpen(false); setAppliedJobsModalOpen(true); };
+    const handleGoToDashboard = () => { setDropdownOpen(false); navigate(getDashboardPath()); };
 
-    const handleEditProfile = () => {
-        setDropdownOpen(false);
-        setProfileModalOpen(true);
-    };
-
-    const handleOpenSavedJobs = () => {
-        setDropdownOpen(false);
-        setSavedJobsModalOpen(true);
-    };
-
-    const handleOpenAppliedJobs = () => {
-        setDropdownOpen(false);
-        setAppliedJobsModalOpen(true);
-    };
-
-    let avatarLetter = 'U';
-
-    if (name && name.length > 0) {
-        avatarLetter = name.charAt(0).toUpperCase();
-    }
-
-    let displayName = 'Tài khoản';
-
-    if (name) {
-        displayName = name;
-    }
+    const avatarLetter = name?.charAt(0).toUpperCase() || 'U';
+    const displayName = name || 'Tài khoản';
 
     return (
         <header className="bg-purple-600 w-full shadow-md">
@@ -83,17 +48,12 @@ const Header = () => {
                     <img src={Logo} alt="JobHot Logo" className="h-24 w-auto" />
                 </Link>
 
-                <nav className="grow flex gap-1"></nav>
+                <nav className="grow flex gap-1" />
                 <div className="flex items-center gap-3">
-
                     {token && (
                         <div className="relative" ref={dropdownRef}>
                             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 text-white/90 px-3 py-2 rounded-lg hover:bg-white/15 transition-colors">
-                                {avatar ? (
-                                    <img src={avatar} alt={displayName} className="w-9 h-9 rounded-full object-cover border-2 border-white/40" />
-                                ) : (
-                                    <div className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center text-white text-sm font-bold">{avatarLetter}</div>
-                                )}
+                                {avatar ? <img src={avatar} alt={displayName} className="w-9 h-9 rounded-full object-cover border-2 border-white/40" /> : <div className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center text-white text-sm font-bold">{avatarLetter}</div>}
                                 <div className="flex flex-col items-start">
                                     <span className="font-semibold text-sm">{displayName}</span>
                                     {email && <span className="text-xs text-white/70">{email}</span>}
@@ -134,15 +94,12 @@ const Header = () => {
                                                     Việc đã ứng tuyển
                                                 </button>
 
-                                                <div className="my-1 border-t border-gray-100"></div>
+                                                <div className="my-1 border-t border-gray-100" />
                                             </>
                                         )}
 
                                         {(role === 'admin' || role === 'employer') && (
-                                            <button className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-3" onClick={() => {
-                                                setDropdownOpen(false);
-                                                navigate(getDashboardPath());
-                                            }}>
+                                            <button className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors flex items-center gap-3" onClick={handleGoToDashboard}>
                                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                                                 </svg>

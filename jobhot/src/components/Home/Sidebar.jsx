@@ -1,102 +1,36 @@
 import { useState } from 'react';
 
 const workTypes = [
-    {
-        id: 'Full-time',
-        label: 'Nhân viên chính thức'
-    },
-    {
-        id: 'Part-time',
-        label: 'Bán thời gian'
-    },
-    {
-        id: 'Seasonal',
-        label: 'Nhân viên thời vụ'
-    },
-    {
-        id: 'Freelancer',
-        label: 'Freelancer'
-    },
-    {
-        id: 'Intern',
-        label: 'Thực tập sinh'
-    },
+    { id: 'Full-time', label: 'Nhân viên chính thức' },
+    { id: 'Part-time', label: 'Bán thời gian' },
+    { id: 'Seasonal', label: 'Nhân viên thời vụ' },
+    { id: 'Freelancer', label: 'Freelancer' },
+    { id: 'Intern', label: 'Thực tập sinh' },
 ];
 
 const levels = [
-    {
-        id: 'Mới tốt nghiệp',
-        label: 'Mới tốt nghiệp'
-    },
-    {
-        id: 'Nhân viên',
-        label: 'Nhân viên'
-    },
-    {
-        id: 'Trưởng nhóm',
-        label: 'Trưởng nhóm'
-    },
-    {
-        id: 'Quản lý',
-        label: 'Quản lý'
-    },
-    {
-        id: 'Senior',
-        label: 'Senior'
-    },
-    {
-        id: 'Giám đốc',
-        label: 'Giám đốc'
-    },
+    { id: 'Mới tốt nghiệp', label: 'Mới tốt nghiệp' },
+    { id: 'Nhân viên', label: 'Nhân viên' },
+    { id: 'Trưởng nhóm', label: 'Trưởng nhóm' },
+    { id: 'Quản lý', label: 'Quản lý' },
+    { id: 'Senior', label: 'Senior' },
+    { id: 'Giám đốc', label: 'Giám đốc' },
 ];
 
-const locations = [
-    'Hà Nội',
-    'Hồ Chí Minh',
-    'Đà Nẵng',
-    'Hải Phòng',
-    'Cần Thơ'
-];
+const locations = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ'];
 
 const sendFiltersToBackend = async (workType, level, locationName, onFilter) => {
-    let queryString = '';
-
-    if (workType !== null) {
-        queryString = queryString + 'workType=' + encodeURIComponent(workType);
-    }
-
-    if (level !== null) {
-        if (queryString !== '') {
-            queryString = queryString + '&';
-        }
-
-        queryString = queryString + 'level=' + encodeURIComponent(level);
-    }
-
-    if (locationName !== null) {
-        if (queryString !== '') {
-            queryString = queryString + '&';
-        }
-
-        queryString = queryString + 'location=' + encodeURIComponent(locationName);
-    }
-
-    let url;
-
-    if (queryString === '') {
-        url = '/server/index.php?action=get-jobs';
-    } else {
-        url = '/server/index.php?action=get-jobs&' + queryString;
-    }
+    const params = { workType, level, location: locationName };
+    const queryString = Object.entries(params).filter(([, v]) => v !== null).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+    const url = queryString ? `/server/index.php?action=get-jobs&${queryString}` : '/server/index.php?action=get-jobs';
 
     try {
         const response = await fetch(url);
         const data = await response.json();
         console.log('Filter response:', data);
 
-        // Extract jobs array from response
         if (data.success) {
-            const jobs = data.data?.jobs || data.jobs || [];
+            const jobs = data.data?.jobs ?? data.jobs ?? [];
             console.log('Filtered jobs:', jobs);
             onFilter(jobs);
         } else {
@@ -109,46 +43,16 @@ const sendFiltersToBackend = async (workType, level, locationName, onFilter) => 
     }
 };
 
-const getButtonClasses = (isSelected) => {
-    const base = 'w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2';
+const getButtonClasses = (isSelected) => `w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 ${isSelected ? 'bg-purple-50 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50'}`;
+const getDotClasses = (isSelected) => `w-2 h-2 rounded-full shrink-0 ${isSelected ? 'bg-purple-600' : 'bg-gray-300'}`;
+const getLocationPillClasses = (isSelected) => `px-3 py-1.5 rounded-full text-xs border transition-colors ${isSelected ? 'border-purple-400 text-purple-600' : 'border-gray-200 text-gray-600 hover:border-purple-400 hover:text-purple-600'}`;
 
-    if (isSelected) {
-        return base + ' bg-purple-50 text-purple-700 font-medium';
-    }
-
-    return base + ' text-gray-600 hover:bg-gray-50';
-};
-
-const getDotClasses = (isSelected) => {
-    const base = 'w-2 h-2 rounded-full shrink-0';
-
-    if (isSelected) {
-        return base + ' bg-purple-600';
-    }
-
-    return base + ' bg-gray-300';
-};
-
-const getLocationPillClasses = (isSelected) => {
-    const base = 'px-3 py-1.5 rounded-full text-xs border transition-colors';
-
-    if (isSelected) {
-        return base + ' border-purple-400 text-purple-600';
-    }
-
-    return (
-        base + ' border-gray-200 text-gray-600 hover:border-purple-400 hover:text-purple-600'
-    );
-};
-
-const FilterButton = ({ label, isSelected, onClick }) => {
-    return (
-        <button onClick={onClick} className={getButtonClasses(isSelected)}>
-            <span className={getDotClasses(isSelected)} />
-            {label}
-        </button>
-    );
-};
+const FilterButton = ({ label, isSelected, onClick }) => (
+    <button onClick={onClick} className={getButtonClasses(isSelected)}>
+        <span className={getDotClasses(isSelected)} />
+        {label}
+    </button>
+);
 
 const Sidebar = ({ onFilter }) => {
     const [selectedWorkType, setSelectedWorkType] = useState(null);
@@ -156,40 +60,19 @@ const Sidebar = ({ onFilter }) => {
     const [selectedLocationName, setSelectedLocationName] = useState(null);
 
     const handleWorkTypeClick = (id) => {
-        let newWorkType;
-
-        if (selectedWorkType === id) {
-            newWorkType = null;
-        } else {
-            newWorkType = id;
-        }
-
+        const newWorkType = selectedWorkType === id ? null : id;
         setSelectedWorkType(newWorkType);
         sendFiltersToBackend(newWorkType, selectedLevel, selectedLocationName, onFilter);
     };
 
     const handleLevelClick = (id) => {
-        let newLevel;
-
-        if (selectedLevel === id) {
-            newLevel = null;
-        } else {
-            newLevel = id;
-        }
-
+        const newLevel = selectedLevel === id ? null : id;
         setSelectedLevel(newLevel);
         sendFiltersToBackend(selectedWorkType, newLevel, selectedLocationName, onFilter);
     };
 
     const handleLocationClick = (locationName) => {
-        let newLocationName;
-
-        if (selectedLocationName === locationName) {
-            newLocationName = null;
-        } else {
-            newLocationName = locationName;
-        }
-
+        const newLocationName = selectedLocationName === locationName ? null : locationName;
         setSelectedLocationName(newLocationName);
         sendFiltersToBackend(selectedWorkType, selectedLevel, newLocationName, onFilter);
     };
@@ -211,15 +94,11 @@ const Sidebar = ({ onFilter }) => {
                 <div>
                     <h4 className="font-semibold text-xs text-gray-500 uppercase tracking-wide mb-3">Hình thức làm việc</h4>
                     <ul className="flex flex-col gap-1">
-                        {workTypes.map((item) => {
-                            const isSelected = selectedWorkType === item.id;
-
-                            return (
-                                <li key={item.id}>
-                                    <FilterButton label={item.label} isSelected={isSelected} onClick={() => { handleWorkTypeClick(item.id); }} />
-                                </li>
-                            );
-                        })}
+                        {workTypes.map((item) => (
+                            <li key={item.id}>
+                                <FilterButton label={item.label} isSelected={selectedWorkType === item.id} onClick={() => handleWorkTypeClick(item.id)} />
+                            </li>
+                        ))}
                     </ul>
                 </div>
 
@@ -227,17 +106,12 @@ const Sidebar = ({ onFilter }) => {
 
                 <div>
                     <h4 className="font-semibold text-xs text-gray-500 uppercase tracking-wide mb-3">Cấp bậc</h4>
-
                     <ul className="flex flex-col gap-1">
-                        {levels.map((item) => {
-                            const isSelected = selectedLevel === item.id;
-
-                            return (
-                                <li key={item.id}>
-                                    <FilterButton label={item.label} isSelected={isSelected} onClick={() => { handleLevelClick(item.id); }} />
-                                </li>
-                            );
-                        })}
+                        {levels.map((item) => (
+                            <li key={item.id}>
+                                <FilterButton label={item.label} isSelected={selectedLevel === item.id} onClick={() => handleLevelClick(item.id)} />
+                            </li>
+                        ))}
                     </ul>
                 </div>
 
@@ -245,15 +119,10 @@ const Sidebar = ({ onFilter }) => {
 
                 <div>
                     <h4 className="font-semibold text-xs text-gray-500 uppercase tracking-wide mb-3">Địa điểm</h4>
-
                     <div className="flex flex-wrap gap-2">
-                        {locations.map((locationName) => {
-                            const isSelected = selectedLocationName === locationName;
-
-                            return (
-                                <button key={locationName} onClick={() => { handleLocationClick(locationName); }} className={getLocationPillClasses(isSelected)}>{locationName}</button>
-                            );
-                        })}
+                        {locations.map((locationName) => (
+                            <button key={locationName} onClick={() => handleLocationClick(locationName)} className={getLocationPillClasses(selectedLocationName === locationName)}>{locationName}</button>
+                        ))}
                     </div>
                 </div>
             </div>

@@ -3,26 +3,11 @@ import { useNavigate } from 'react-router-dom';
 const LoginModal = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
 
-    const handleBackdropClick = (e) => {
-        if (e.target === e.currentTarget) {
-            onClose();
-        }
-    };
+    const handleBackdropClick = (e) => e.target === e.currentTarget && onClose();
+    const handleGoToLogin = () => { onClose(); navigate('/login'); };
+    const handleGoToRegister = () => { onClose(); navigate('/register'); };
 
-    const handleGoToLogin = () => {
-        onClose();
-        navigate('/login');
-    };
-
-    const handleGoToRegister = () => {
-        onClose();
-        navigate('/register');
-    };
-
-    if (!isOpen)
-        return null;
-
-    return (
+    return !isOpen ? null : (
         <div className="fixed inset-0 flex items-center justify-center z-9999 p-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.85)' }} onClick={handleBackdropClick}>
             <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-md relative animate-fadeIn">
                 <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
